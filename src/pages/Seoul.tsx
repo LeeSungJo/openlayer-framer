@@ -12,20 +12,18 @@ import GeoJSON from "ol/format/GeoJSON";
 import proj4 from "proj4";
 import { register } from "ol/proj/proj4";
 import { transform } from "ol/proj";
-import { useGetSeoulMap } from "../services/get";
-
-// EPSG:5186 좌표계 추가
-// proj4.defs(
-//   "EPSG:5186",
-//   "+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
-// );
-// register(proj4);
+import { epsg5179ProjName } from "../utils/openLayers/coordinate";
+import {
+  useGetSeoulSigLayer,
+  useGetSeoulSigCentroid,
+  useGetSeoulData,
+} from "../services/get";
+import { seoulLayerStyle } from "../utils/openLayers/mapStyle";
+import SideBar from "../components/home/SideBar";
+import { getBaseLayer, getMapLayer } from "../utils/openLayers/mapLayers";
 
 // EPSG:5179 좌표계 추가
-proj4.defs(
-  "EPSG:5179",
-  "+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +units=m +no_defs"
-);
+proj4.defs("EPSG:5179", epsg5179ProjName);
 register(proj4);
 
 export default function Seoul() {
@@ -33,48 +31,79 @@ export default function Seoul() {
 
   const mapRef = useRef<HTMLDivElement | null>(null);
 
-  const { data: seoulSigMap } = useGetSeoulMap();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleSideBar = () => {
+    setIsOpen(!isOpen);
+  };
+
+  // 서울 시군구 레이어
+  const { data: seoulSigMap } = useGetSeoulSigLayer();
+  // 서울 시군구 중심점
+  const { data: seoulSigCentroid } = useGetSeoulSigCentroid();
+
+  // 서울 데이터
+  const { data: seoulData, isFetched: dataFetched } = useGetSeoulData();
 
   // 배경 지도
-  const baseLayer = new TileLayer({
-    source: new OSM(),
-  });
+  // const baseLayer = new TileLayer({
+  //   source: new OSM(),
+  // });
 
+  /**
+   * 기본 지도 & 데이터 뿌리기
+   */
   useEffect(() => {
-    if (mapRef.current && seoulSigMap) {
-      // 서울 지도
-      const seoulLayer = new VectorLayer({
-        layerName: "seoulLayer", // 레이어에 이름을 부여
-        source: new VectorSource({
-          features: new GeoJSON().readFeatures(seoulSigMap, {
-            // dataProjection: "EPSG:4326",
-            // featureProjection: "EPSG:5179",
-          }),
-        }),
-      });
+    if (mapRef.current && seoulSigMap && seoulSigCentroid) {
+      // // 서울 지도
+      console.log("seoulSigMap : ", seoulSigMap);
+      console.log("seoulSigCentroid : ", seoulSigCentroid);
+      // const seoulLayer = new VectorLayer({
+      //   layerName: "seoulLayer", // 레이어에 이름을 부여
+      //   source: new VectorSource({
+      //     features: new GeoJSON().readFeatures(seoulSigMap, {
+      //       // dataProjection: "EPSG:4326",
+      //       // featureProjection: "EPSG:5179",
+      //     }),
+      //   }),
+      //   style: (features) => [seoulLayerStyle(features, seoulSigCentroid)],
+      //   declutter: true, // text가 겹치면 사라짐
+      // });
 
       setMap(
         new Map({
           target: mapRef.current, // ID of the HTML element or useRef where the map should be rendered
-          layers: [baseLayer, seoulLayer],
+          layers: [getBaseLayer(), getMapLayer("seoulLayer", seoulSigMap)],
           view: new View({
             // projection: getProjection("EPSG:5186"),
             projection: "EPSG:5179",
             // center: [1107627.718, 1817204.582559], // EPSG:5186 기준 서울의 경도와 위도
             // center: [126.9780, 37.5665], // EPSG:4326 기준 서울의 경도와 위도
             center: transform(
-              [127.9055956, 36.5760207],
+              [126.972317, 37.555946],
               "EPSG:4326",
               "EPSG:5179"
             ),
-            zoom: 7, // Initial zoom level
+            zoom: 11, // Initial zoom level
           }),
         })
       );
     }
-  }, [seoulSigMap]);
+  }, [seoulSigMap, seoulSigCentroid]);
 
-  return <SeoulMap ref={mapRef} />;
+  useEffect(() => {
+    console.log("dataFetched1 : ", dataFetched);
+
+    console.log("dataFetched2 : ", dataFetched);
+    console.log("DATA : ", seoulData);
+  }, [seoulData, dataFetched]);
+
+  return (
+    <>
+      <SideBar isOpen={isOpen} setIsOpen={handleSideBar} />
+      <SeoulMap ref={mapRef} />
+    </>
+  );
 }
 
 const SeoulMap = styled.div`

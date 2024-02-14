@@ -21,7 +21,7 @@ export default function SideBar({ isOpen, setIsOpen }: ISideBar) {
             animate={{ x: 0 }}
             transition={{
               ease: "easeOut",
-              duration: 0.3,
+              duration: 0.2,
               type: "tween",
             }}
             exit={{ x: "-100%" }}
@@ -54,6 +54,7 @@ const Toggle = styled(motion.div)`
 const Area = styled(motion.div)`
   display: flex;
   flex-direction: column;
+  position: absolute;
   background-color: #8dc0ff;
   width: 300px;
   height: calc(100vh - 20px);
