@@ -3,15 +3,17 @@ import { OSM } from "ol/source";
 import { Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource } from "ol/source";
 import GeoJSON from "ol/format/GeoJSON";
-import { seoulLayerStyle } from "./mapStyle";
+import { seoulLayerStyle } from "./mapStyles";
 
 /**
  * 기본 배경지도(OSM - Open Street Map)
  * @returns {TileLayer}
  */
 export const getBaseLayer = () => {
+  // const baseLayer = new TileLayer({
   const baseLayer = new TileLayer({
     source: new OSM(),
+    // layerName: "baseLayer",
   });
   return baseLayer;
 };
@@ -35,6 +37,5 @@ export const getMapLayer = (layerName: string, mapData: GeoJSON) => {
     style: (features) => [seoulLayerStyle(features)],
     declutter: true, // text가 겹치면 사라지는 기능 ON
   });
-  console.log("MAP : ", mapLayer);
   return mapLayer;
 };

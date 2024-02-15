@@ -1,8 +1,12 @@
 import { motion } from "framer-motion";
 import styled from "styled-components";
 
-export default function MenuItem() {
-  return <Container>Item</Container>;
+interface IMenuItem {
+  event: (name: string) => void;
+}
+
+export default function MenuItem({ event }: IMenuItem) {
+  return <Container onClick={event}>Item</Container>;
 }
 
 const Container = styled(motion.div)`

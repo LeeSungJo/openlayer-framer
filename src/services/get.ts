@@ -47,7 +47,7 @@ export const useGetSeoulSigCentroid = () => {
 export const useGetSeoulData = () => {
   const getSeoulData = async () => {
     try {
-      const { data } = await axios.get("/src/assets/datas/data.geojson");
+      const { data } = await axios.get("/src/assets/datas/data5179.geojson");
       return data;
     } catch (error) {
       return console.error("Error loading GeoJson file:", error);

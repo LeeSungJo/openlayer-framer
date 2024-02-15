@@ -6,9 +6,16 @@ import Navigation from "./Navigation";
 interface ISideBar {
   isOpen: boolean;
   setIsOpen: () => void;
+  selectedMenu: string;
+  setSelectedMenu: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function SideBar({ isOpen, setIsOpen }: ISideBar) {
+export default function SideBar({
+  isOpen,
+  setIsOpen,
+  selectedMenu,
+  setSelectedMenu,
+}: ISideBar) {
   return (
     <>
       <Toggle onClick={() => setIsOpen()}>
@@ -27,7 +34,7 @@ export default function SideBar({ isOpen, setIsOpen }: ISideBar) {
             exit={{ x: "-100%" }}
           >
             <TitleArea>메뉴 제목</TitleArea>
-            <Navigation />
+            <Navigation event={event} />
           </Area>
         )}
       </AnimatePresence>
